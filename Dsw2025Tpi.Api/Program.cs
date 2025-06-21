@@ -24,21 +24,17 @@ public class Program
         builder.Services.AddSwaggerGen();
         builder.Services.AddHealthChecks();
 
-
-
-
-        builder.Services.AddDbContext<Dsw2025TpiContext>(options =>
-        {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Dsw2025TpiEntities"));
+        builder.Services.AddDbContext<Dsw2025TpiContext>(options => 
+        options.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=DswTpiCatalogo;Integrated Security=True;"));
             /*options.UseSeeding((c, t) =>
             {
                 //((Dsw2025TpiContext)c).Seedwork<Product>("Sources\products.json");
             });*/
 
-
-        });
-        builder.Services.AddScoped<IRepository, EfRepository>();
+        builder.Services.AddTransient<IRepository, EfRepository>();
+        builder.Services.AddScoped<ProductsManagementService>();
         builder.Services.AddTransient<ProductsManagementService>();
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

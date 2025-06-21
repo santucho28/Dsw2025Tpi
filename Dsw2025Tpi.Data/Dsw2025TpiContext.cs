@@ -38,8 +38,17 @@ public class Dsw2025TpiContext : DbContext
             // Restricción para que CurrentUnitPrice sea mayor a 0
             eb.HasCheckConstraint("CK_Product_CurrentUnitPrice_Positive", "[CurrentUnitPrice] > 0");
             // Restricción para que StockQuantity sea no negativo
-            eb.HasCheckConstraint("CK_Product_Stock_NonNegative", "[Stock] >= 0");
+            eb.HasCheckConstraint("CK_Product_Stock_NonNegative", "[StockQuantity] >= 0");
+            modelBuilder.Entity<OrderItem>(eb =>
+            {
+                eb.ToTable("OrderItems");
 
+                eb.Property(p => p.Quantity)
+                    .HasPrecision(18, 2); // o el valor que quieras
+
+                eb.Property(p => p.UnitPrice)
+                    .HasPrecision(18, 2); // evita truncamientos
+            });
 
 
         });

@@ -29,7 +29,6 @@ namespace Dsw2025Tpi.Domain.Entities
         public int StockQuantity { get; set; }
         public bool IsActive { get; set; }
 
-        // Relaciones
         public ICollection<OrderItem> Items { get; set; } = new HashSet<OrderItem>();
     }
 }
