@@ -6,30 +6,30 @@ using System.Threading.Tasks;
 
 namespace Dsw2025Tpi.Domain.Entities
 {
-    internal class Product : EntityBase
+    public class Product : EntityBase
     {
         public Product()
         {
-
         }
-        public Product(string sku, string internalCode, string name, string description, decimal currentUnitPrice, int stockQuantity)
+        public Product(string sku, string name, decimal price, string internalCode, string description, int stock)
         {
             Sku = sku;
-            InternalCode = internalCode;
             Name = name;
+            CurrentUnitPrice = price;
+            InternalCode = internalCode;
             Description = description;
-            CurrentUnitPrice = currentUnitPrice;
-            StockQuantity = stockQuantity;
-            Id = Guid.NewGuid();
+            StockQuantity = stock;
+            IsActive = true;
         }
         public string? Sku { get; set; }
-        public string? InternalCode { get; set; }
         public string? Name { get; set; }
-        public string? Description { get; set; }
         public decimal CurrentUnitPrice { get; set; }
-        public int StockQuantity
-        {
-            get; set;
-        }
+        public string InternalCode { get; set; }
+        public string Description { get; set; }
+        public int StockQuantity { get; set; }
+        public bool IsActive { get; set; }
+
+        // Relaciones
+        public ICollection<OrderItem> Items { get; set; } = new HashSet<OrderItem>();
     }
 }

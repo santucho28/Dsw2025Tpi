@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Dsw2025Tpi.Application.Services;
+
 using Dsw2025Tpi.Application.Dtos;
 
 [ApiController]
-[Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
     private readonly ProductsManagementService _service;
@@ -14,6 +13,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
+    [Route("/api/products")]
     public async Task<IActionResult> AddProduct([FromBody] ProductModel.Request request)
     {
         try

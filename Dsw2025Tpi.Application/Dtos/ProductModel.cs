@@ -4,14 +4,15 @@ namespace Dsw2025Tpi.Application.Dtos
     {
         public record Request(string Sku, string InternalCode, string name, string Description, decimal CurrentUnitPrice, int StockQuantity);
         public record Response(
-            object id,
+            
             Guid Id,
             string? Sku,
             string? InternalCode,
             string? Name,
             string? Description,
             decimal CurrentUnitPrice,
-            int StockQuantity
+            int StockQuantity,
+            bool IsActive
         );
     }
 }

@@ -30,6 +30,7 @@ public class ProductsManagementService
         var added = await _repository.Add(product);
 
         return new ProductModel.Response(
+
             added.Id,
             added.Sku,
             added.InternalCode,
