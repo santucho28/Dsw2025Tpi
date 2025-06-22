@@ -1,4 +1,3 @@
-
 using Dsw2025Tpi.Data;
 using Dsw2025Tpi.Data.Repositories;
 using Dsw2025Tpi.Domain.Entities;
@@ -17,24 +16,29 @@ public class Program
 
         // Add services to the container.
 
-
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
+        });
         builder.Services.AddHealthChecks();
 
-        builder.Services.AddDbContext<Dsw2025TpiContext>(options => 
-        options.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=DswTpiCatalogo;Integrated Security=True;"));
-            /*options.UseSeeding((c, t) =>
+        /*builder.Services.AddDbContext<Dsw2025TpiContext>(options =>
+        {
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=DswTpiCatalogo;Integrated Security=True;"));
+            options.UseSeeding((c,t) =>
             {
-                //((Dsw2025TpiContext)c).Seedwork<Product>("Sources\products.json");
-            });*/
+                ((Dsw2025TpiContext)c).Seedwork<Customer>("Sources\\Customers.json");
+            });
+        });*/
+        builder.Services.AddDbContext<Dsw2025TpiContext>(options =>
+        options.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=DswTpiCatalogo;Integrated Security=True;"));
 
         builder.Services.AddTransient<IRepository, EfRepository>();
         builder.Services.AddScoped<ProductsManagementService>();
-        builder.Services.AddTransient<ProductsManagementService>();
-        
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -51,8 +55,13 @@ public class Program
         app.MapControllers();
 
         app.MapHealthChecks("/healthcheck");
-
+        // seed de clientes
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
+            db.Seedwork<Customer>("Sources\\Customers.json");
+        }
         app.Run();
     }
-    }
+}
 

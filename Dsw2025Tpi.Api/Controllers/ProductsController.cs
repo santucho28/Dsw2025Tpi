@@ -106,4 +106,27 @@ public class ProductsController : ControllerBase
             return Problem("Se produjo un error al actualizar el producto");
         }
     }
+
+    [HttpPost()]
+    [Route("/api/orders")]
+    public async Task<IActionResult> CreateOrder([FromBody] OrderModel.Request request)
+    {
+        try
+        {
+            var order = await _service.CreateOrder(request);
+            return CreatedAtAction(nameof(_service.GetOrderById), new { id = order.Id }, order);
+        }
+        catch (ArgumentException ae)
+        {
+            return BadRequest(ae.Message);
+        }
+        catch (ApplicationException de)
+        {
+            return Conflict(de.Message);
+        }
+        catch (Exception)
+        {
+            return Problem("Se produjo un error al crear el pedido");
+        }
+    }
 }

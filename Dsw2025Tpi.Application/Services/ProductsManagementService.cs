@@ -1,6 +1,7 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
+using System.Linq;
 
 public class ProductsManagementService
 {
@@ -30,7 +31,6 @@ public class ProductsManagementService
         var added = await _repository.Add(product);
 
         return new ProductModel.Response(
-
             added.Id,
             added.Sku,
             added.InternalCode,
@@ -119,6 +119,97 @@ public class ProductsManagementService
             updated.CurrentUnitPrice,
             updated.StockQuantity,
             updated.IsActive
+        );
+    }
+
+    public async Task<OrderModel.Response?> GetOrderById(Guid id)
+    {
+        var order = await _repository.GetById<Order>(id, "Items", "Items.Product", "Customer");
+        if (order == null)  
+            return null;
+
+        return new OrderModel.Response(
+            order.Id,
+            order.CustomerId,
+            order.ShippingAddress,
+            order.BillingAddress,
+            order.Date,
+            order.TotalAmount,
+            order.Items.Select(oi => new OrderModel.OrderItemResponse(
+                oi.ProductId,
+                oi.Product?.Name ?? "",
+                oi.Product?.Description ?? "",
+                oi.UnitPrice,
+                oi.Quantity,
+                oi.Subtotal
+            )).ToList(),
+            order.Status.ToString()
+        );
+    }
+    public async Task<OrderModel.Response> CreateOrder(OrderModel.Request request)
+    {
+        if (request == null || request.OrderItems == null || !request.OrderItems.Any())
+            throw new ArgumentException("La orden debe tener al menos un producto.");
+
+        var customer = await _repository.GetById<Customer>(request.CustomerId);
+        if (customer == null)
+            throw new ArgumentException("Cliente no encontrado.");
+
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            Date = DateTime.UtcNow,
+            ShippingAddress = request.ShippingAddress,
+            BillingAddress = request.BillingAddress,
+            Notes = "",
+            Status = OrderStatus.Pending,
+            CustomerId = customer.Id,
+            Customer = customer,
+            Items = new List<OrderItem>()
+        };
+
+        decimal total = 0;
+
+        foreach (var item in request.OrderItems)
+        {
+            var product = await _repository.GetById<Product>(item.ProductId);
+            if (product == null)
+                throw new ArgumentException($"Producto con ID {item.ProductId} no encontrado.");
+
+            var subtotal = item.CurrentUnitPrice * item.Quantity;
+
+            var orderItem = new OrderItem
+            {
+                Id = Guid.NewGuid(),
+                ProductId = product.Id,
+                Product = product,
+                Quantity = item.Quantity,
+                UnitPrice = item.CurrentUnitPrice
+            };
+            order.Items.Add(orderItem);
+            total += subtotal;
+        }
+
+        order.TotalAmount = total;
+
+        var added = await _repository.Add(order);
+
+        return new OrderModel.Response(
+            added.Id,
+            added.CustomerId,
+            added.ShippingAddress,
+            added.BillingAddress,
+            added.Date,
+            added.TotalAmount,
+            added.Items.Select(oi => new OrderModel.OrderItemResponse(
+                oi.ProductId,
+                oi.Product?.Name ?? "",
+                oi.Product?.Description ?? "",
+                oi.UnitPrice,
+                oi.Quantity,
+                oi.Subtotal
+            )).ToList(),
+            added.Status.ToString()
         );
     }
 }
