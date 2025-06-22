@@ -45,6 +45,8 @@ public class Dsw2025TpiContext : DbContext
                 .HasDefaultValue(0);
             eb.Property(oi => oi.UnitPrice)
                 .HasPrecision(15, 2);
+            eb.Property(oi =>oi.Subtotal)
+                .HasPrecision(15, 2);
 
         });
         modelBuilder.Entity<Order>(od => {

@@ -184,7 +184,8 @@ public class ProductsManagementService
                 ProductId = product.Id,
                 Product = product,
                 Quantity = item.Quantity,
-                UnitPrice = item.CurrentUnitPrice
+                UnitPrice = item.CurrentUnitPrice,
+                Subtotal = subtotal 
             };
             order.Items.Add(orderItem);
             total += subtotal;

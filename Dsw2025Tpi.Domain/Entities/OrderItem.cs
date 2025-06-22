@@ -14,6 +14,7 @@ namespace Dsw2025Tpi.Domain.Entities
         public Product Product { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal Subtotal => Quantity * UnitPrice;
+        public decimal Subtotal { get; set; }
+        //public decimal Subtotal => Quantity * UnitPrice;
     }
 }
