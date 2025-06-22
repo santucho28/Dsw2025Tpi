@@ -1,0 +1,14 @@
+[
+  {
+    "id": "b1a2c3d4-e5f6-7890-1234-567890abcdef",
+    "email": "cliente1@email.com",
+    "name": "Cliente Uno",
+    "phoneNumber": "123456789"
+  },
+  {
+    "id": "c2b3a4d5-e6f7-8901-2345-678901bcdefa",
+    "email": "cliente2@email.com",
+    "name": "Cliente Dos",
+    "phoneNumber": "987654321"
+  }
+]
