@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Dsw2025Tpi.Application.Dtos;
 
 [ApiController]
+[Route("/api/products")]
 public class ProductsController : ControllerBase
 {
     private readonly ProductsManagementService _service;
@@ -13,7 +14,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    [Route("/api/products")]
+    [Route("")]
     public async Task<IActionResult> AddProduct([FromBody] ProductModel.Request request)
     {
         try
@@ -36,7 +37,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet()]
-    [Route("/api/products")]
+    [Route("")]
     public async Task<IActionResult> GetProducts()
     {
         var products = await _service.GetProducts();
@@ -46,7 +47,7 @@ public class ProductsController : ControllerBase
 
 
     [HttpGet()]
-    [Route("/api/products/{id:guid}")]
+    [Route("{id:guid}")]
     public async Task<IActionResult> GetProductById(Guid id)
     {
         var product = await _service.GetProductById(id);
@@ -57,7 +58,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut()]
-    [Route("/api/products/{id:guid}")]
+    [Route("{id:guid}")]
     public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductModel.Request request)
     {
         try
@@ -82,7 +83,7 @@ public class ProductsController : ControllerBase
         }
     }
     [HttpPatch()]
-    [Route("/api/products/{id:guid}")]
+    [Route("{id:guid}")]
     public async Task<IActionResult> PatchProduct(Guid id)
     {
         try
@@ -104,29 +105,6 @@ public class ProductsController : ControllerBase
         catch (Exception)
         {
             return Problem("Se produjo un error al actualizar el producto");
-        }
-    }
-
-    [HttpPost()]
-    [Route("/api/orders")]
-    public async Task<IActionResult> CreateOrder([FromBody] OrderModel.Request request)
-    {
-        try
-        {
-            var order = await _service.CreateOrder(request);
-            return CreatedAtAction(nameof(_service.GetOrderById), new { id = order.Id }, order);
-        }
-        catch (ArgumentException ae)
-        {
-            return BadRequest(ae.Message);
-        }
-        catch (ApplicationException de)
-        {
-            return Conflict(de.Message);
-        }
-        catch (Exception)
-        {
-            return Problem("Se produjo un error al crear el pedido");
         }
     }
 }
