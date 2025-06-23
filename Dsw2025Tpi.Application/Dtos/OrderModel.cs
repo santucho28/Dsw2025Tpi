@@ -17,7 +17,7 @@ namespace Dsw2025Tpi.Application.Dtos
             Guid CustomerId,
             string ShippingAddress,
             string BillingAddress,
-            List<OrderItemRequest> OrderItems
+            List<OrderItemRequest> Items // <--- Cambiado a Items
         );
 
         public record OrderItemResponse(
@@ -36,8 +36,9 @@ namespace Dsw2025Tpi.Application.Dtos
             string BillingAddress,
             DateTime Date,
             decimal TotalAmount,
-            List<OrderItemResponse> OrderItems,
+            List<OrderItemResponse> Items, // <--- Cambiado a Items
             string Status
         );
+
     }
 }

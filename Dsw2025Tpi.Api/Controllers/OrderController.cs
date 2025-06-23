@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Dsw2025Tpi.Api.Controllers
 {
     [ApiController]
+    [Route("api/orders")]
     public class OrderController : ControllerBase
     {
         private readonly ProductsManagementService _service;
@@ -13,17 +14,17 @@ namespace Dsw2025Tpi.Api.Controllers
             _service = service;
         }
 
-        [HttpPost()]
-        [Route("/api/orders")]
+        [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] OrderModel.Request request)
         {
             try
             {
                 var order = await _service.CreateOrder(request);
-                return CreatedAtAction(nameof(_service.GetOrderById), new { id = order.Id }, order);
+                // Usar el nombre de la acción del propio controlador
+                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
             }
             catch (ArgumentException ae)
-            {
+            {   
                 return BadRequest(ae.Message);
             }
             catch (ApplicationException de)
@@ -34,6 +35,15 @@ namespace Dsw2025Tpi.Api.Controllers
             {
                 return Problem("Se produjo un error al crear el pedido");
             }
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetOrderById(Guid id)
+        {
+            var order = await _service.GetOrderById(id);
+            if (order == null)
+                return NotFound();
+            return Ok(order);
         }
     }
 }
