@@ -1,44 +1,44 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Dsw2025Tpi.Application.Dtos
 {
     public class OrderModel
     {
         public record OrderItemRequest(
-            Guid ProductId,
-            int Quantity,
-            string Name,
-            string Description,
-            decimal CurrentUnitPrice
+            [property: JsonPropertyName("productId")] Guid ProductId,
+            [property: JsonPropertyName("quantity")] int Quantity,
+            [property: JsonPropertyName("name")] string Name,
+            [property: JsonPropertyName("description")] string Description,
+            [property: JsonPropertyName("unitPrice")] decimal CurrentUnitPrice
         );
 
         public record Request(
-            Guid CustomerId,
-            string ShippingAddress,
-            string BillingAddress,
-            List<OrderItemRequest> Items // <--- Cambiado a Items
+            [property: JsonPropertyName("customerId")] Guid CustomerId,
+            [property: JsonPropertyName("shippingAddress")] string ShippingAddress,
+            [property: JsonPropertyName("billingAddress")] string BillingAddress,
+            [property: JsonPropertyName("orderItems")] List<OrderItemRequest> Items 
         );
 
         public record OrderItemResponse(
-            Guid ProductId,
-            string Name,
-            string Description,
-            decimal UnitPrice,
-            int Quantity,
-            decimal Subtotal
+            [property: JsonPropertyName("productId")] Guid ProductId,
+            [property: JsonPropertyName("name")] string Name,
+            [property: JsonPropertyName("description")] string Description,
+            [property: JsonPropertyName("unitPrice")] decimal UnitPrice,
+            [property: JsonPropertyName("quantity")] int Quantity,
+            [property: JsonPropertyName("subtotal")] decimal Subtotal
         );
 
         public record Response(
-            Guid Id,
-            Guid CustomerId,
-            string ShippingAddress,
-            string BillingAddress,
-            DateTime Date,
-            decimal TotalAmount,
-            List<OrderItemResponse> Items, // <--- Cambiado a Items
-            string Status
+            [property: JsonPropertyName("orderId")] Guid Id,
+            [property: JsonPropertyName("customerId")] Guid CustomerId,
+            [property: JsonPropertyName("shippingAddress")] string ShippingAddress,
+            [property: JsonPropertyName("billingAddress")] string BillingAddress,
+            [property: JsonPropertyName("orderDate")] DateTime Date,
+            [property: JsonPropertyName("totalAmount")] decimal TotalAmount,
+            [property: JsonPropertyName("orderItems")] List<OrderItemResponse> Items, 
+            [property: JsonPropertyName("orderStatus")] string Status
         );
-
     }
 }

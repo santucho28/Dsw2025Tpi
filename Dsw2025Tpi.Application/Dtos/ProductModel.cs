@@ -1,17 +1,27 @@
+using System.Text.Json.Serialization;
+
 namespace Dsw2025Tpi.Application.Dtos
 {
     public class ProductModel
     {
-        public record Request(string Sku, string InternalCode, string Name, string Description, decimal CurrentUnitPrice, int StockQuantity);
+        public record Request(
+            [property: JsonPropertyName("sku")] string Sku,
+            [property: JsonPropertyName("internalCode")] string InternalCode,
+            [property: JsonPropertyName("name")] string Name,
+            [property: JsonPropertyName("description")] string Description,
+            [property: JsonPropertyName("currentUnitPrice")] decimal CurrentUnitPrice,
+            [property: JsonPropertyName("stockQuantity")] int StockQuantity
+        );
+
         public record Response(
-            Guid Id,
-            string? Sku,
-            string? InternalCode,
-            string? Name,
-            string? Description,
-            decimal CurrentUnitPrice,
-            int StockQuantity,
-            bool IsActive
+            [property: JsonPropertyName("productId")] Guid Id,
+            [property: JsonPropertyName("sku")] string? Sku,
+            [property: JsonPropertyName("internalCode")] string? InternalCode,
+            [property: JsonPropertyName("name")] string? Name,
+            [property: JsonPropertyName("description")] string? Description,
+            [property: JsonPropertyName("currentUnitPrice")] decimal CurrentUnitPrice,
+            [property: JsonPropertyName("stockQuantity")] int StockQuantity,
+            [property: JsonPropertyName("isActive")] bool IsActive
         );
     }
 }
