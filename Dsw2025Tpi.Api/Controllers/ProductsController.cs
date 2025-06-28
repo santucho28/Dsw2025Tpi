@@ -47,7 +47,7 @@ public class ProductsController : ControllerBase
 
 
     [HttpGet()]
-    [Route("{id:guid}")]
+    [Route("{id:Guid}")]
     public async Task<IActionResult> GetProductById(Guid id)
     {
         var product = await _service.GetProductById(id);
@@ -58,7 +58,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut()]
-    [Route("{id:guid}")]
+    [Route("{id:Guid}")]
     public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductModel.Request request)
     {
         try
@@ -83,7 +83,7 @@ public class ProductsController : ControllerBase
         }
     }
     [HttpPatch()]
-    [Route("{id:guid}")]
+    [Route("{id:Guid}")]
     public async Task<IActionResult> PatchProduct(Guid id)
     {
         try

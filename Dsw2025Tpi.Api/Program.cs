@@ -65,3 +65,5 @@ public class Program
     }
 }
 
+public record Request(string Sku, string InternalCode, string Name, string Description, decimal CurrentUnitPrice, int StockQuantity);
+

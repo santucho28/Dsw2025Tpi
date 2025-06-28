@@ -37,7 +37,8 @@ namespace Dsw2025Tpi.Api.Controllers
             }
         }
 
-        [HttpGet("{id:guid}")]
+
+        [HttpGet("{id:Guid}")]
         public async Task<IActionResult> GetOrderById(Guid id)
         {
             var order = await _service.GetOrderById(id);

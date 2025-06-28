@@ -14,14 +14,28 @@ public class ProductsManagementService
 
     public async Task<ProductModel.Response> AddProduct(ProductModel.Request request)
     {
-        if (string.IsNullOrWhiteSpace(request.Sku) || string.IsNullOrWhiteSpace(request.name))
+        // Validaciones básicas
+        if (string.IsNullOrWhiteSpace(request.Sku) || string.IsNullOrWhiteSpace(request.Name))
             throw new ArgumentException("SKU y nombre son obligatorios.");
+
+        // Validación de precio positivo (según documento del proyecto)
+        if (request.CurrentUnitPrice <= 0)
+            throw new ArgumentException("El precio debe ser mayor a 0.");
+
+        // Validación de stock no negativo (según documento del proyecto)
+        if (request.StockQuantity < 0)
+            throw new ArgumentException("El stock no debe ser negativo.");
+
+        // Validación de SKU único (según documento del proyecto)
+        var existingProduct = await _repository.First<Product>(p => p.Sku == request.Sku);
+        if (existingProduct != null)
+            throw new ArgumentException("El SKU ya existe en el sistema.");
 
         var product = new Product
         {
             Sku = request.Sku,
             InternalCode = request.InternalCode,
-            Name = request.name,
+            Name = request.Name,
             Description = request.Description,
             CurrentUnitPrice = request.CurrentUnitPrice,
             StockQuantity = request.StockQuantity,
@@ -80,15 +94,36 @@ public class ProductsManagementService
         var product = await _repository.GetById<Product>(id);
         if (product == null)
             throw new ApplicationException("Producto no encontrado.");
-        if (string.IsNullOrWhiteSpace(request.Sku) || string.IsNullOrWhiteSpace(request.name))
+        
+        // Validaciones básicas
+        if (string.IsNullOrWhiteSpace(request.Sku) || string.IsNullOrWhiteSpace(request.Name))
             throw new ArgumentException("SKU y nombre son obligatorios.");
+        
+        // Validación de precio positivo
+        if (request.CurrentUnitPrice <= 0)
+            throw new ArgumentException("El precio debe ser mayor a 0.");
+        
+        // Validación de stock no negativo
+        if (request.StockQuantity < 0)
+            throw new ArgumentException("El stock no debe ser negativo.");
+        
+        // Validación de SKU único (solo si está cambiando el SKU)
+        if (product.Sku != request.Sku)
+        {
+            var existingProduct = await _repository.First<Product>(p => p.Sku == request.Sku);
+            if (existingProduct != null)
+                throw new ArgumentException("El SKU ya existe en el sistema.");
+        }
+        
         product.Sku = request.Sku;
         product.InternalCode = request.InternalCode;
-        product.Name = request.name;
+        product.Name = request.Name;
         product.Description = request.Description;
         product.CurrentUnitPrice = request.CurrentUnitPrice;
         product.StockQuantity = request.StockQuantity;
+        
         var updated = await _repository.Update(product);
+        
         return new ProductModel.Response(
             updated.Id,
             updated.Sku,
@@ -146,6 +181,7 @@ public class ProductsManagementService
             order.Status.ToString()
         );
     }
+
     public async Task<OrderModel.Response> CreateOrder(OrderModel.Request request)
     {
         if (request == null || request.Items == null || !request.Items.Any())
@@ -155,26 +191,27 @@ public class ProductsManagementService
         if (customer == null)
             throw new ArgumentException("Cliente no encontrado.");
 
-        // 1. Verificar stock para cada item
+        // Obtener todos los productos una sola vez
+        var productIds = request.Items.Select(i => i.ProductId).Distinct().ToList();
+        var productsDict = new Dictionary<Guid, Product>();
+        
+        foreach (var productId in productIds)
+        {
+            var product = await _repository.GetById<Product>(productId);
+            if (product == null)
+                throw new ArgumentException($"Producto con ID {productId} no encontrado.");
+            productsDict[productId] = product;
+        }
+
+        // Verificar stock ANTES de crear la orden
         foreach (var item in request.Items)
         {
-            var product = await _repository.GetById<Product>(item.ProductId);
-            if (product == null)
-                throw new ArgumentException($"Producto con ID {item.ProductId} no encontrado.");
-
+            var product = productsDict[item.ProductId];
             if (item.Quantity > product.StockQuantity)
                 throw new ArgumentException($"Stock insuficiente para el producto '{product.Name}'. Stock disponible: {product.StockQuantity}, solicitado: {item.Quantity}.");
         }
 
-        // 2. Descontar stock
-        foreach (var item in request.Items)
-        {
-            var product = await _repository.GetById<Product>(item.ProductId);
-            product.StockQuantity -= item.Quantity;
-            await _repository.Update(product);
-        }
-
-        // 3. Crear la orden y los items
+        // Crear la orden
         var order = new Order
         {
             Id = Guid.NewGuid(),
@@ -192,10 +229,10 @@ public class ProductsManagementService
 
         foreach (var item in request.Items)
         {
-            var product = await _repository.GetById<Product>(item.ProductId);
-
-            var unitPrice = product.CurrentUnitPrice;
-            var subtotal = unitPrice * item.Quantity;
+            var product = productsDict[item.ProductId];
+            
+            var unitPrice = product.CurrentUnitPrice;  // Precio al momento de la compra
+            var subtotal = unitPrice * item.Quantity;  // Subtotal por item
 
             var orderItem = new OrderItem
             {
@@ -207,14 +244,20 @@ public class ProductsManagementService
                 Subtotal = subtotal
             };
             order.Items.Add(orderItem);
-            total += subtotal;
+            total += subtotal;  // Total acumulado
         }
 
-        order.TotalAmount = total;
+        // Descontar stock DESPUÉS de validar
+        foreach (var item in request.Items)
+        {
+            var product = productsDict[item.ProductId];
+            product.StockQuantity -= item.Quantity;
+            await _repository.Update(product);
+        }
 
+        order.TotalAmount = total;  // Asignación final
         var added = await _repository.Add(order);
 
-        // Usar el constructor del record para la respuesta
         return new OrderModel.Response(
             added.Id,
             added.CustomerId,
