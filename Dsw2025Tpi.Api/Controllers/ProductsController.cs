@@ -92,7 +92,7 @@ public class ProductsController : ControllerBase
             if (product == null) {  
                 return NotFound(); 
             }
-            return Ok(product);
+            return NoContent();
         }
         catch (ArgumentException ae)
         {
@@ -107,4 +107,5 @@ public class ProductsController : ControllerBase
             return Problem("Se produjo un error al actualizar el producto");
         }
     }
+
 }
