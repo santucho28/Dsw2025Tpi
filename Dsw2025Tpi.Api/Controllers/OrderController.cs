@@ -7,9 +7,9 @@ namespace Dsw2025Tpi.Api.Controllers
     [Route("api/orders")]
     public class OrderController : ControllerBase
     {
-        private readonly ProductsManagementService _service;
+        private readonly OrdersManagementService _service;
 
-        public OrderController(ProductsManagementService service)
+        public OrderController(OrdersManagementService service)
         {
             _service = service;
         }
@@ -20,7 +20,6 @@ namespace Dsw2025Tpi.Api.Controllers
             try
             {
                 var order = await _service.CreateOrder(request);
-                // Usar el nombre de la acción del propio controlador
                 return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
             }
             catch (ArgumentException ae)
@@ -36,7 +35,6 @@ namespace Dsw2025Tpi.Api.Controllers
                 return Problem("Se produjo un error al crear el pedido");
             }
         }
-
 
         [HttpGet("{id:Guid}")]
         public async Task<IActionResult> GetOrderById(Guid id)
